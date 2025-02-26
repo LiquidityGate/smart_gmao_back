@@ -1,0 +1,68 @@
+package com.gmao.gmao_backend.controller;
+
+import com.gmao.gmao_backend.dto.TipoDTO;
+import com.gmao.gmao_backend.service.TipoService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+
+@RestController
+@RequestMapping("/api/tipo")
+public class TipoController {
+
+    private final TipoService tipoService;
+
+    public TipoController(TipoService tipoService) {
+        this.tipoService = tipoService;
+    }
+
+    // Obtener todas las órdenes de trabajo con filtros
+    @GetMapping
+    public ResponseEntity<Page<TipoDTO>> getAll(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(value = "sortField", defaultValue = "id") String sortField,
+        @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+        TipoDTO filtros) {
+        Page<TipoDTO> dtoPage = tipoService.findAll(page, size, sortField, sortDirection, filtros);
+        return ResponseEntity.ok(dtoPage);
+    }
+
+    // Obtener una orden de trabajo por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<TipoDTO> getById(@PathVariable Long id) {
+        return tipoService.findById(id)
+                                  .map(ResponseEntity::ok)
+                                  .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Crear una nueva orden de trabajo
+    @PostMapping
+    public ResponseEntity<TipoDTO> create(@RequestBody TipoDTO tipoDTO) {
+        TipoDTO savedOrden = tipoService.save(tipoDTO);
+        return ResponseEntity.ok(savedOrden);
+    }
+
+    // Actualizar una orden de trabajo existente
+    @PutMapping("/{id}")
+    public ResponseEntity<TipoDTO> update(@PathVariable Long id, @RequestBody TipoDTO tipoDTO) {
+        tipoDTO.setId(id); // Asegura que el ID en el DTO sea correcto para la actualización
+        return tipoService.findById(id)
+                .map(existingOrden -> {
+                    TipoDTO updatedOrden = tipoService.update(id, tipoDTO);
+                    return ResponseEntity.ok(updatedOrden);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Eliminar una orden de trabajo por ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (tipoService.findById(id).isPresent()) {
+            tipoService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+}
