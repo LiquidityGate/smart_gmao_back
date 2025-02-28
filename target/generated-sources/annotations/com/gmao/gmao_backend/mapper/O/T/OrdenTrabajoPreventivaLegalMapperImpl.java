@@ -1,7 +1,5 @@
 package com.gmao.gmao_backend.mapper.O.T;
 
-import com.gmao.gmao_backend.dto.O.T.OrdenTrabajoPreventivaLegalDTO;
-import com.gmao.gmao_backend.model.O.T.OrdenTrabajoPreventivaLegal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
